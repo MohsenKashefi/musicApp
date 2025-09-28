@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import eu.tutorials.musicappui.ui.MainView
+import eu.tutorials.musicappui.ui.theme.MainView
 import eu.tutorials.musicappui.ui.theme.MusicAppUITheme
 
 class MainActivity : ComponentActivity() {

@@ -1,4 +1,4 @@
-package eu.tutorials.musicappui.ui
+package eu.tutorials.musicappui.ui.theme
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -16,25 +16,23 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material.Scaffold
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.primarySurface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,130 +64,95 @@ import eu.tutorials.musicappui.ui.theme.Subscription
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainView(){
-
-    val scaffoldState: ScaffoldState = rememberScaffoldState()
-    val scope: CoroutineScope = rememberCoroutineScope()
     val viewModel: MainViewModel = viewModel()
-    val isSheetFullScreen by remember{ mutableStateOf(false) }
-
-    val modifier = if(isSheetFullScreen) Modifier.fillMaxSize() else Modifier.fillMaxWidth()
-    // Allow us to find out on which "View" we current are
     val controller: NavController = rememberNavController()
     val navBackStackEntry by controller.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val dialogOpen = remember{
-        mutableStateOf(false)
-    }
+    val dialogOpen = remember{ mutableStateOf(false) }
+    val currentScreen = remember{ viewModel.currentScreen.value }
+    val title = remember{ mutableStateOf(currentScreen.title) }
 
-    val currentScreen = remember{
-        viewModel.currentScreen.value
-    }
-
-    val title = remember{
-        mutableStateOf(currentScreen.title)
-    }
-
-    val modalSheetState = androidx.compose.material.rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded}
-    )
-
-    val roundedCornerRadius = if(isSheetFullScreen) 0.dp else 12.dp
-
-    val bottomBar:  @Composable () -> Unit = {
+    val bottomBar: @Composable () -> Unit = {
         if(currentScreen is Screen.DrawerScreen || currentScreen == Screen.BottomScreen.Home){
-            BottomNavigation(Modifier.wrapContentSize()) {
-                screensInBottom.forEach{
-                    item ->
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 8.dp
+            ) {
+                screensInBottom.forEach{ item ->
                     val isSelected = currentRoute == item.bRoute
-                    Log.d("Navigation", "Item: ${item.bTitle}, Current Route: $currentRoute, Is Selected: $isSelected")
-                    val tint = if(isSelected)Color.White else Color.Black
-                    BottomNavigationItem(selected = currentRoute == item.bRoute,
-                        onClick = { controller.navigate(item.bRoute)
-                                  title.value = item.bTitle
-                                  }, icon = {
-
-                            Icon(tint= tint,
-                                contentDescription = item.bTitle, painter= painterResource(id = item.icon))
+                    NavigationBarItem(
+                        selected = isSelected,
+                        onClick = { 
+                            controller.navigate(item.bRoute)
+                            title.value = item.bTitle
                         },
-                            label = { Text(text = item.bTitle, color = tint )}
-                        , selectedContentColor = Color.White,
-                        unselectedContentColor = Color.Black
-
-                        )
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = item.icon),
+                                contentDescription = item.bTitle,
+                                tint = if(isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
+                        label = { 
+                            Text(
+                                text = item.bTitle,
+                                color = if(isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    )
                 }
             }
         }
     }
 
-    ModalBottomSheetLayout(
-        sheetState = modalSheetState,
-        sheetShape = RoundedCornerShape(topStart = roundedCornerRadius, topEnd = roundedCornerRadius),
-        sheetContent = {
-        MoreBottomSheet(modifier = modifier)
-    }) {
-        Scaffold(
-            bottomBar = bottomBar,
-            topBar = {
-                TopAppBar(title = { Text(title.value) },
-                    actions = {
-                           IconButton(
-                               onClick = {
-                                   scope.launch {
-                                       if(modalSheetState.isVisible)
-                                           modalSheetState.hide()
-                                       else
-                                           modalSheetState.show()
-                                   }
-                               }
-                           ) {
-                              Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
-                           }
-                    },
-                    navigationIcon = { IconButton(onClick = {
-                        // Open the drawer
-                        scope.launch {
-                            scaffoldState.drawerState.open()
-                        }
-                    }) {
-                        Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "Menu" )
-                    }}
-                )
-            },scaffoldState = scaffoldState,
-            drawerContent = {
-                LazyColumn(Modifier.padding(16.dp)){
-                    items(screensInDrawer){
-                            item ->
-                        DrawerItem(selected = currentRoute == item.dRoute, item = item) {
-                            scope.launch {
-                                scaffoldState.drawerState.close()
-                            }
-                            if(item.dRoute == "add_account"){
-                                dialogOpen.value= true
-                            }else{
-                                controller.navigate(item.dRoute)
-                                title.value = item.dTitle
-                            }
-                        }
+    Scaffold(
+        bottomBar = bottomBar,
+        topBar = {
+            TopAppBar(
+                title = { 
+                    Text(
+                        text = title.value,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                actions = {
+                    IconButton(onClick = { /* TODO: Add search functionality */ }) {
+                        Icon(
+                            imageVector = Icons.Default.Search, 
+                            contentDescription = "Search",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    IconButton(onClick = { /* TODO: Add more options */ }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert, 
+                            contentDescription = "More options",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                },
+                navigationIcon = { 
+                    IconButton(onClick = { /* TODO: Add profile menu */ }) {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle, 
+                            contentDescription = "Profile",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
-            }
-
-        ) {
-            Navigation(navController = controller, viewModel = viewModel, pd = it)
-
-            AccountDialog(dialogOpen = dialogOpen)
-
+            )
         }
+    ) { paddingValues ->
+        Navigation(navController = controller, pd = paddingValues)
+        AccountDialog(dialogOpen = dialogOpen)
     }
-
-
-
-
-
 }
 
 @Composable
@@ -198,23 +161,30 @@ fun DrawerItem(
     item: Screen.DrawerScreen,
     onDrawerItemClicked : () -> Unit
 ){
-    val background = if (selected) Color.DarkGray else Color.White
+    val backgroundColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+    
     Row(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 16.dp)
-            .background(background)
-            .clickable {
-                onDrawerItemClicked()
-            }) {
+            .background(
+                backgroundColor,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .clickable { onDrawerItemClicked() }
+            .padding(16.dp)
+    ) {
         Icon(
             painter = painterResource(id = item.icon),
             contentDescription = item.dTitle,
-            Modifier.padding(end = 8.dp, top = 4.dp)
+            tint = contentColor,
+            modifier = Modifier.padding(end = 16.dp)
         )
         Text(
             text = item.dTitle,
-            style = MaterialTheme.typography.h5,
+            style = MaterialTheme.typography.bodyLarge,
+            color = contentColor
         )
     }
 }
@@ -225,60 +195,80 @@ fun MoreBottomSheet(modifier: Modifier){
         Modifier
             .fillMaxWidth()
             .height(300.dp)
-            .background(
-                MaterialTheme.colors.primarySurface
-            )
+            .background(MaterialTheme.colorScheme.surface)
     ){
-        Column(modifier = modifier.padding(16.dp), verticalArrangement = Arrangement.SpaceBetween){
-            Row(modifier = modifier.padding(16.dp)){
-                Icon(modifier = Modifier.padding(end = 8.dp),
-                   painter =  painterResource(id = R.drawable.baseline_settings_24),
-                    contentDescription = "Settings")
-                Text(text = "Settings", fontSize = 20.sp, color = Color.White)
-            }
-            Row(modifier = modifier.padding(16.dp)) {
-                androidx.compose.material.Icon(
-                    modifier = Modifier.padding(end = 8.dp),
-                    painter = painterResource(id = R.drawable.ic_baseline_share_24),
-                    contentDescription = "Share"
+        Column(
+            modifier = modifier.padding(16.dp), 
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ){
+            Row(
+                modifier = modifier.padding(16.dp),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ){
+                Icon(
+                    modifier = Modifier.padding(end = 16.dp),
+                    painter = painterResource(id = R.drawable.baseline_settings_24),
+                    contentDescription = "Settings",
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
-
-                androidx.compose.material.Text(
+                Text(
+                    text = "Settings", 
+                    fontSize = 20.sp, 
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Row(
+                modifier = modifier.padding(16.dp),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.padding(end = 16.dp),
+                    painter = painterResource(id = R.drawable.ic_baseline_share_24),
+                    contentDescription = "Share",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
                     text = "Share",
                     fontSize = 20.sp,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            Row(modifier = modifier.padding(16.dp)) {
-                androidx.compose.material.Icon(
-                    modifier = Modifier.padding(end = 8.dp),
+            Row(
+                modifier = modifier.padding(16.dp),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.padding(end = 16.dp),
                     painter = painterResource(id = R.drawable.ic_help_green),
-                    contentDescription = "Help"
+                    contentDescription = "Help",
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
-                androidx.compose.material.Text(text = "Help", fontSize = 20.sp, color = Color.White)
+                Text(
+                    text = "Help", 
+                    fontSize = 20.sp, 
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     }
 }
 
-
 @Composable
-fun Navigation(navController: NavController, viewModel: MainViewModel, pd:PaddingValues){
-
-    NavHost(navController = navController as NavHostController,
-        startDestination = Screen.DrawerScreen.Account.route, modifier = Modifier.padding(pd) ){
-
+fun Navigation(navController: NavController, pd:PaddingValues){
+    NavHost(
+        navController = navController as NavHostController,
+        startDestination = Screen.DrawerScreen.Account.route, 
+        modifier = Modifier.padding(pd)
+    ){
         composable(Screen.BottomScreen.Home.bRoute){
             Home()
         }
         composable(Screen.BottomScreen.Browse.bRoute){
             Browse()
         }
-
         composable(Screen.BottomScreen.Library.bRoute){
             Library()
         }
-
         composable(Screen.DrawerScreen.Account.route){
             AccountView()
         }
@@ -286,5 +276,4 @@ fun Navigation(navController: NavController, viewModel: MainViewModel, pd:Paddin
             Subscription()
         }
     }
-
 }

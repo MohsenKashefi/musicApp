@@ -3,7 +3,7 @@ package eu.tutorials.musicappui
 import androidx.annotation.DrawableRes
 
 sealed class Screen(val title: String, val route: String) {
-a
+
     sealed class BottomScreen(
         val bTitle: String, val bRoute: String, @DrawableRes val icon: Int
     ):Screen(bTitle,bRoute){
