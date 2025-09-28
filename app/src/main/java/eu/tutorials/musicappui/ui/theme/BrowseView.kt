@@ -1,5 +1,6 @@
 package eu.tutorials.musicappui.ui.theme
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,11 +15,14 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.painterResource
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,14 +37,14 @@ import eu.tutorials.musicappui.R
 @Composable
 fun Browse(){
     val categories = listOf(
-        "Hits" to R.drawable.baseline_apps_24,
-        "Happy" to R.drawable.baseline_apps_24,
-        "Workout" to R.drawable.baseline_apps_24,
-        "Running" to R.drawable.baseline_apps_24,
-        "TGIF" to R.drawable.baseline_apps_24,
-        "Yoga" to R.drawable.baseline_apps_24,
-        "Chill" to R.drawable.baseline_apps_24,
-        "Rock" to R.drawable.baseline_apps_24
+        "Hits" to R.drawable.baseline_library_music_24,
+        "Happy" to R.drawable.ic_baseline_music_note_24,
+        "Workout" to R.drawable.baseline_music_video_24,
+        "Running" to R.drawable.ic_microphone,
+        "TGIF" to R.drawable.ic_genre,
+        "Yoga" to R.drawable.ic_playlist_green,
+        "Chill" to R.drawable.ic_baseline_album_24,
+        "Rock" to R.drawable.baseline_settings_24
     )
     
     LazyVerticalGrid(
@@ -87,11 +91,13 @@ fun BrowserItem(cat: String, drawable: Int){
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Icon(
+                Image(
                     painter = painterResource(id = drawable),
                     contentDescription = cat,
-                    modifier = Modifier.size(32.dp),
-                    tint = Color.White
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
                 )
                 Text(
                     text = cat,

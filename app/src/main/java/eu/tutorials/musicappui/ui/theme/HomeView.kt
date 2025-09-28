@@ -44,18 +44,18 @@ import eu.tutorials.musicappui.R
 @Composable
 fun Home(){
     val categories = listOf(
-        "Hits" to R.drawable.baseline_apps_24,
-        "Happy" to R.drawable.baseline_apps_24,
-        "Workout" to R.drawable.baseline_apps_24,
-        "Running" to R.drawable.baseline_apps_24,
-        "TGIF" to R.drawable.baseline_apps_24,
-        "Yoga" to R.drawable.baseline_apps_24
+        "Hits" to R.drawable.ic_baseline_music_note_24,
+        "Happy" to R.drawable.baseline_music_video_24,
+        "Workout" to R.drawable.baseline_library_music_24,
+        "Running" to R.drawable.ic_microphone,
+        "TGIF" to R.drawable.ic_genre,
+        "Yoga" to R.drawable.ic_playlist_green
     )
     
     val featuredPlaylists = listOf(
-        "New Release" to "Discover the latest hits",
-        "Favorites" to "Your most loved tracks",
-        "Top Rated" to "Popular music everyone loves"
+        Triple("New Release", "Discover the latest hits", R.drawable.baseline_library_music_24),
+        Triple("Favorites", "Your most loved tracks", R.drawable.ic_baseline_music_note_24),
+        Triple("Top Rated", "Popular music everyone loves", R.drawable.baseline_music_video_24)
     )
     
     val gradientColors = listOf(
@@ -100,7 +100,7 @@ fun Home(){
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(featuredPlaylists.size) { index ->
-                        val (title, description) = featuredPlaylists[index]
+                        val (title, description, imageRes) = featuredPlaylists[index]
                         val gradientColor = gradientColors[index % gradientColors.size]
                         
                         Card(
@@ -118,6 +118,17 @@ fun Home(){
                                     .fillMaxSize()
                                     .padding(16.dp)
                             ) {
+                                // Album Art
+                                Image(
+                                    painter = painterResource(id = imageRes),
+                                    contentDescription = title,
+                                    modifier = Modifier
+                                        .size(60.dp)
+                                        .align(Alignment.TopEnd)
+                                        .clip(RoundedCornerShape(8.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                                
                                 Column(
                                     modifier = Modifier.align(Alignment.BottomStart)
                                 ) {
@@ -181,12 +192,17 @@ fun Home(){
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                val recentItems = listOf("Liked Songs", "Daily Mix 1", "Discover Weekly", "Chill Vibes")
+                val recentItems = listOf(
+                    "Liked Songs" to R.drawable.baseline_library_music_24,
+                    "Daily Mix 1" to R.drawable.ic_baseline_music_note_24,
+                    "Discover Weekly" to R.drawable.baseline_music_video_24,
+                    "Chill Vibes" to R.drawable.ic_playlist_green
+                )
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(recentItems) { item ->
-                        RecentPlayedCard(title = item)
+                    items(recentItems) { (title, imageRes) ->
+                        RecentPlayedCard(title = title, imageRes = imageRes)
                     }
                 }
             }
@@ -235,7 +251,8 @@ fun CategoryCard(
 
 @Composable
 fun RecentPlayedCard(
-    title: String
+    title: String,
+    imageRes: Int
 ) {
     Card(
         modifier = Modifier
@@ -253,28 +270,15 @@ fun RecentPlayedCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Album Art Placeholder
-            Box(
+            // Album Art
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = "Album Art",
                 modifier = Modifier
                     .size(56.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xFF6366F1),
-                                Color(0xFF8B5CF6)
-                            )
-                        )
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_music_video_24),
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
             
             Spacer(modifier = Modifier.width(12.dp))
             

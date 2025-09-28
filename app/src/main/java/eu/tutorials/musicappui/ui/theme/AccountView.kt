@@ -106,7 +106,13 @@ fun AccountView(){
                                         .size(60.dp)
                                         .clip(CircleShape)
                                         .background(
-                                            Color.White.copy(alpha = 0.2f)
+                                            Brush.linearGradient(
+                                                colors = listOf(
+                                                    Color(0xFF6366F1),
+                                                    Color(0xFF8B5CF6),
+                                                    Color(0xFFEC4899)
+                                                )
+                                            )
                                         ),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -192,10 +198,10 @@ fun AccountView(){
                 )
                 
                 val menuItems = listOf(
-                    MenuItem("My Music", Icons.Default.PlayArrow, R.drawable.baseline_music_video_24),
-                    MenuItem("Liked Songs", Icons.Default.Favorite, R.drawable.baseline_music_video_24),
-                    MenuItem("Downloaded", Icons.Default.Download, R.drawable.baseline_music_video_24),
-                    MenuItem("Recently Played", Icons.Default.History, R.drawable.baseline_music_video_24)
+                    MenuItem("My Music", Icons.Default.PlayArrow, R.drawable.baseline_library_music_24),
+                    MenuItem("Liked Songs", Icons.Default.Favorite, R.drawable.ic_baseline_music_note_24),
+                    MenuItem("Downloaded", Icons.Default.Download, R.drawable.ic_baseline_album_24),
+                    MenuItem("Recently Played", Icons.Default.History, R.drawable.ic_playlist_green)
                 )
                 
                 menuItems.forEach { item ->
